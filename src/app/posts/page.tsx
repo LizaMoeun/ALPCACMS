@@ -11,10 +11,23 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
 
 export default function PublicPostsPage() {
   const supabase = createClientComponentClient()
-  const [posts, setPosts] = useState<any[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
   const router = useRouter()
+  
+  interface Post {
+  id: string
+  title: string
+  content: string
+  type: "club" | "events"
+  status: string
+  date: string
+  time?: string
+  image?: string
+  author?: string
+  }
+
+  const [posts, setPosts] = useState<Post[]>([])
 
   useEffect(() => {
     async function fetchPosts() {
@@ -162,10 +175,10 @@ export default function PublicPostsPage() {
           </Card>
         )}
 
-        {/* Footer */}
+        {/* Ffooter */}
         <div className="mt-12 text-center">
           <p className="text-muted-foreground">
-            Want to post your own content?{" "}
+            <p>Don&apos;t forget to submit</p>
             <Button variant="link" onClick={() => router.push("/")} className="p-0 h-auto">
               Sign in as admin
             </Button>

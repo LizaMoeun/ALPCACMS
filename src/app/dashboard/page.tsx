@@ -29,7 +29,7 @@ export default function Dashboard() {
   const [activeNav, setActiveNav] = useState("dashboard")
   const { user, logout, isAdmin } = useAuth()
   const router = useRouter()
-  const [chartData, setChartData] = useState<any[]>([])
+  const [chartData, setChartData] = useState<[]>([])
   const handleLogout = () => {
     logout()
     router.push("/")
@@ -116,7 +116,7 @@ export default function Dashboard() {
 
 function DashboardOverview() {
   const [posts, setPosts] = useState<Post[]>([])
-  const [chartData, setChartData] = useState<any[]>([])
+  const [chartData, setChartData] = useState<{ day: string; posts: number; visitors: number }[]>([])
   const [loading, setLoading] = useState(true)
 
 const [searchTerm, setSearchTerm] = useState("")
@@ -140,8 +140,20 @@ useEffect(() => {
         console.error(postsError)
         return
       }
+      type RawPost = {
+        id: string
+        title: string
+        content: string
+        type: "club" | "events"
+        date: string | null
+        time: string | null
+        status: "draft" | "published"
+        author?: string | null
+        image?: string | null
+      }
+
       setPosts(
-        (postsData as any[]).map((p) => ({
+        ((postsData ?? []) as RawPost[]).map((p) => ({
           id: p.id,
           title: p.title,
           content: p.content,

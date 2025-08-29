@@ -1,8 +1,7 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -26,14 +25,12 @@ export default function AlpcaWelcome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary via-primary/80 to-secondary">
-     
       <div className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-12">
           <div className="text-white text-2xl font-bold">
-            <img src="logo-alpca.png" alt="logobruh" />
+            <Image src="/logo-alpca.png" alt="logo" width={120} height={40} />
           </div>
           <div className="flex items-center gap-3">
-            {/*go to merl all t'he posts button */}
             <Button
               variant="secondary"
               className="bg-white/20 hover:bg-white/30 text-white border-white/30"
@@ -41,9 +38,13 @@ export default function AlpcaWelcome() {
             >
               View Posts
             </Button>
+
             <Dialog open={showSignIn} onOpenChange={setShowSignIn}>
               <DialogTrigger asChild>
-                <Button variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-white/30">
+                <Button
+                  variant="secondary"
+                  className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                >
                   Log in
                 </Button>
               </DialogTrigger>
@@ -54,7 +55,6 @@ export default function AlpcaWelcome() {
           </div>
         </div>
 
-        {/*introdution */}
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">🌟 Welcome to ALPCA!</h1>
@@ -64,13 +64,11 @@ export default function AlpcaWelcome() {
             <CardContent className="p-8 md:p-12">
               <div className="text-center mb-8">
                 <p className="text-lg text-muted-foreground mb-8">
-                  Alpca helps you organize and manage all your campus clubs, events, and activities in one place. 
-                  Schedule posts, track events, and keep your community engaged with ease — all with a touch of alpaca cuteness!
+                  Alpca helps you organize and manage all your campus clubs, events, and activities in one place. Schedule posts, track events, and keep your community engaged with ease — all with a touch of alpaca cuteness!
                 </p>
               </div>
 
               <div className="grid md:grid-cols-2 gap-8 mb-8">
-                {/* abbout */}
                 <div>
                   <h3 className="text-xl font-semibold mb-4 text-primary">About Us — Alpca</h3>
                   <p className="space-y-5 text-m text-muted-foreground mb-3">A team gives you the tools to:</p>
@@ -85,15 +83,11 @@ export default function AlpcaWelcome() {
                   </ul>
                 </div>
 
-                {/*mission */}
                 <div>
                   <h3 className="text-xl font-semibold mb-4 text-primary">Our Mission</h3>
                   <p className="text-m text-muted-foreground mb-2">
-                    At Alpca, our mission is to make club and event management simple, joyful,
-                    and accessible for every student. We aim to empower campus communities with 
-                    an easy-to-use platform that organizes activities with a calm and 
-                    friendly vibe — just like an alpaca.” 🦙✨                  
-                    </p>
+                    At Alpca, our mission is to make club and event management simple, joyful, and accessible for every student. We aim to empower campus communities with an easy-to-use platform that organizes activities with a calm and friendly vibe — just like an alpaca. 🦙✨
+                  </p>
                 </div>
               </div>
 
@@ -101,7 +95,7 @@ export default function AlpcaWelcome() {
                 <Dialog open={showRegister} onOpenChange={setShowRegister}>
                   <DialogTrigger asChild>
                     <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 py-3">
-                      Let's Sign up with us!
+                      Let&apos;s Sign up with us!
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden">
@@ -129,7 +123,6 @@ function SignInModal({ onClose }: { onClose: () => void }) {
     e.preventDefault()
     setIsLoading(true)
     setError("")
-
     const success = await login(email, password)
     if (success) {
       onClose()
@@ -150,7 +143,7 @@ function SignInModal({ onClose }: { onClose: () => void }) {
           </Button>
         </div>
 
-        <p className="text-muted-foreground mb-8">Let's get back to organizing again! Welcome back!</p>
+        <p className="text-muted-foreground mb-8">Let&apos;s get back to organizing again! Welcome back!</p>
 
         {error && <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">{error}</div>}
 
@@ -199,7 +192,7 @@ function SignInModal({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="flex-1 bg-secondary/30 flex items-center justify-center p-8">
-        <img src="/kid-inthesingn-login.png"  alt="kidintheloginsingup" className="max-w-full h-auto" />
+        <Image src="/kid-inthesingn-login.png" alt="login illustration" width={400} height={400} className="max-w-full h-auto" />
       </div>
     </div>
   )
@@ -218,7 +211,6 @@ function RegisterModal({ onClose }: { onClose: () => void }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
-
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       return
@@ -244,7 +236,8 @@ function RegisterModal({ onClose }: { onClose: () => void }) {
             <X className="h-4 w-4" />
           </Button>
         </div>
-        <p className="text-muted-foreground mb-8">It's our pleasure, time to start a complete new experience!</p>
+
+        <p className="text-muted-foreground mb-8">It&apos;s our pleasure, time to start a complete new experience!</p>
 
         {error && <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">{error}</div>}
 
@@ -312,7 +305,7 @@ function RegisterModal({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="flex-1 bg-secondary/30 flex items-center justify-center p-8">
-        <img src="/kid-inthesingn-login.png" alt="kidintheloginsingup" className="max-w-full h-auto" />
+        <Image src="/kid-inthesingn-login.png" alt="signup illustration" width={400} height={400} className="max-w-full h-auto" />
       </div>
     </div>
   )

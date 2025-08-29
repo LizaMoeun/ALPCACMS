@@ -8,9 +8,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Search, Calendar, Clock, ArrowLeft, Trash2, Edit } from "lucide-react"
 import { useRouter } from "next/navigation"
+import Image from "next/image"
+
+interface Post {
+  id: string
+  title: string
+  content: string
+  type: "club" | "events" | "draft"
+  status: "published" | "draft"
+  date: string
+  time?: string
+  image?: string
+  author?: string
+}
 
 export default function AdminPostsList() {
-  const [posts, setPosts] = useState<any[]>([])
+  const [posts, setPosts] = useState<Post[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
   const [loading, setLoading] = useState(true)
@@ -19,21 +32,26 @@ export default function AdminPostsList() {
   useEffect(() => {
     async function fetchPosts() {
       setLoading(true)
-      const { data, error } = await supabase.from("posts").select("*").order("date", { ascending: false })
-      if (error) {
-        console.error("Error fetching posts:", error)
-      } else {
+      try {
+        const response = await fetch("/api/posts")
+        if (!response.ok) {
+          throw new Error("Failed to fetch posts")
+        }
+        const data: Post[] = await response.json()
         setPosts(data)
+      } catch (error) {
+        console.error("Error fetching posts:", error)
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     fetchPosts()
   }, [])
 
   const filteredPosts = posts.filter((post) => {
     const matchesSearch =
-      post.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      post.content?.toLowerCase().includes(searchTerm.toLowerCase())
+      post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      post.content.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesFilter = filterType === "all" || post.type === filterType
     return matchesSearch && matchesFilter
   })
@@ -109,9 +127,11 @@ export default function AdminPostsList() {
               </CardHeader>
               <CardContent>
                 {post.image && (
-                  <img
+                  <Image
                     src={post.image || "/placeholder.svg"}
                     alt={post.title}
+                    width={500}
+                    height={300}
                     className="w-full h-48 object-cover rounded mb-4"
                   />
                 )}

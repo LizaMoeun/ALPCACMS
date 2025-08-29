@@ -24,6 +24,7 @@ export default function UsersPage() {
   const [users, setUsers] = useState<UserRow[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [draftFilter, setDraftFilter] = useState<"all" | "withDrafts" | "noDrafts">("all")
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     if (!isAdmin) {
@@ -34,39 +35,53 @@ export default function UsersPage() {
   }, [isAdmin, router])
 
   const fetchUsers = async () => {
+    setLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select(`id, role, profiles!inner(email)`)
 
-    const { data, error } = await supabase
-      .from("user_roles")
-      .select("id, role, auth_users:auth.users(email)")
+      if (error) {
+        console.error("Error fetching users:", JSON.stringify(error, null, 2))
+        setLoading(false)
+        return
+      }
 
-    if (error) {
-      console.error("Error fetching users:", error)
-      return
+      type RawUser = {
+        id: string
+        role: "admin" | "user"
+        profiles: { email: string } | { email: string }[]
+      }
+
+      const usersWithDrafts: UserRow[] = await Promise.all(
+        (data as unknown as RawUser[]).map(async (u) => {
+          const { data: drafts } = await supabase
+            .from("posts")
+            .select("id, title")
+            .eq("author", u.id)
+            .eq("status", "draft")
+          const email = Array.isArray(u.profiles) ? u.profiles[0]?.email : u.profiles?.email
+
+          return {
+            id: u.id,
+            email: email ?? "",
+            role: u.role,
+            drafts: (drafts as { id: string; title: string }[]) || [],
+          }
+        })
+      )
+
+      setUsers(usersWithDrafts)
+    } catch (err) {
+      console.error("Fetch users failed:", err)
+    } finally {
+      setLoading(false)
     }
-
-    const usersWithDrafts: UserRow[] = await Promise.all(
-      data.map(async (u: any) => {
-        const { data: drafts } = await supabase
-          .from("posts")
-          .select("id, title")
-          .eq("author", u.id)
-          .eq("status", "draft")
-
-        return {
-          id: u.id,
-          email: u.auth_users.email,
-          role: u.role,
-          drafts: drafts || [],
-        }
-      })
-    )
-
-    setUsers(usersWithDrafts)
   }
 
   const handleRoleChange = async (userId: string, newRole: "admin" | "user") => {
     const { error } = await supabase.from("user_roles").update({ role: newRole }).eq("id", userId)
-    if (error) console.error("Error updating role:", error)
+    if (error) console.error("Error updating role:", JSON.stringify(error, null, 2))
     else fetchUsers()
   }
 
@@ -77,7 +92,7 @@ export default function UsersPage() {
     }
     if (confirm("Are you sure you want to delete this user?")) {
       const { error } = await supabase.from("user_roles").delete().eq("id", userId)
-      if (error) console.error("Error deleting user:", error)
+      if (error) console.error("Error deleting user:", JSON.stringify(error, null, 2))
       else fetchUsers()
     }
   }
@@ -125,15 +140,15 @@ export default function UsersPage() {
           </nav>
         </div>
 
-        {/* main content */}
+        {/* Main content */}
         <div className="flex-1 p-8">
           <div className="max-w-6xl mx-auto">
             <div className="mb-8">
               <h1 className="text-3xl font-bold mb-2">View Posts</h1>
-              <p className="text-muted-foreground">Manage user accounts, Post, and drafts</p>
+              <p className="text-muted-foreground">Manage user accounts, posts, and drafts</p>
             </div>
 
-            {/*serach and f but it so hard  */}
+            {/* Search & Filter */}
             <Card className="mb-6">
               <CardContent className="p-6 flex gap-4">
                 <div className="flex-1 relative">
@@ -145,8 +160,7 @@ export default function UsersPage() {
                     className="pl-10"
                   />
                 </div>
-                <Select value={draftFilter} onValueChange={(val: "all" | "withDrafts" | "noDrafts") => setDraftFilter(val)}>
-                  <SelectTrigger className="w-48">
+                    <SelectTrigger className="w-48">
                     <SelectValue placeholder="Filter drafts" />
                   </SelectTrigger>
                   <SelectContent>
@@ -154,16 +168,25 @@ export default function UsersPage() {
                     <SelectItem value="withDrafts">With Drafts</SelectItem>
                     <SelectItem value="noDrafts">No Drafts</SelectItem>
                   </SelectContent>
-                </Select>
-              </CardContent>
-            </Card>
-
+                  </CardContent>
+                  </Card>
+            
             {/* Users List */}
             <div className="grid gap-4">
-              {filteredUsers.map((u) => (
-                <Card key={u.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
+              {loading ? (
+                <p>Loading users...</p>
+              ) : filteredUsers.length === 0 ? (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <UserIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">No users found</h3>
+                    <p className="text-muted-foreground">Try adjusting your search or draft filter.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                filteredUsers.map((u) => (
+                  <Card key={u.id}>
+                    <CardContent className="p-6 flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
                           <UserIcon className="w-6 h-6 text-primary" />
@@ -180,13 +203,15 @@ export default function UsersPage() {
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <Badge variant={u.role === "admin" ? "default" : "secondary"}>
-                          {u.role}
-                        </Badge>
+                        <Badge variant={u.role === "admin" ? "default" : "secondary"}>{u.role}</Badge>
 
                         <Select
                           value={u.role}
-                          onValueChange={(val: "admin" | "user") => handleRoleChange(u.id, val)}
+                          onValueChange={(val) => {
+                            if (val === "admin" || val === "user") {
+                              handleRoleChange(u.id, val);
+                            }
+                          }}
                           disabled={u.id === user?.id}
                         >
                           <SelectTrigger className="w-32">
@@ -208,21 +233,11 @@ export default function UsersPage() {
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </div>
-
-            {filteredUsers.length === 0 && (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <UserIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No users found</h3>
-                  <p className="text-muted-foreground">Try adjusting your search or draft filter.</p>
-                </CardContent>
-              </Card>
-            )}
           </div>
         </div>
       </div>

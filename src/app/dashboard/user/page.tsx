@@ -37,6 +37,10 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     setLoading(true)
     try {
+      if (!supabase) {
+        setLoading(false)
+        return
+      }
       const { data, error } = await supabase
         .from("user_roles")
         .select(`id, role, profiles!inner(email)`)
@@ -53,20 +57,29 @@ export default function UsersPage() {
         profiles: { email: string } | { email: string }[]
       }
 
+      if (!supabase) {
+        setLoading(false)
+        return
+      }
+
       const usersWithDrafts: UserRow[] = await Promise.all(
         (data as unknown as RawUser[]).map(async (u) => {
-          const { data: drafts } = await supabase
-            .from("posts")
-            .select("id, title")
-            .eq("author", u.id)
-            .eq("status", "draft")
+          let draftsData: { id: string; title: string }[] = []
+          if (supabase) {
+            const { data: drafts } = await supabase
+              .from("posts")
+              .select("id, title")
+              .eq("author", u.id)
+              .eq("status", "draft")
+            draftsData = (drafts as { id: string; title: string }[]) || []
+          }
           const email = Array.isArray(u.profiles) ? u.profiles[0]?.email : u.profiles?.email
 
           return {
             id: u.id,
             email: email ?? "",
             role: u.role,
-            drafts: (drafts as { id: string; title: string }[]) || [],
+            drafts: draftsData,
           }
         })
       )
@@ -80,7 +93,8 @@ export default function UsersPage() {
   }
 
   const handleRoleChange = async (userId: string, newRole: "admin" | "user") => {
-    const { error } = await supabase.from("user_roles").update({ role: newRole }).eq("id", userId)
+  if (!supabase) return
+  const { error } = await supabase.from("user_roles").update({ role: newRole }).eq("id", userId)
     if (error) console.error("Error updating role:", JSON.stringify(error, null, 2))
     else fetchUsers()
   }
@@ -91,7 +105,8 @@ export default function UsersPage() {
       return
     }
     if (confirm("Are you sure you want to delete this user?")) {
-      const { error } = await supabase.from("user_roles").delete().eq("id", userId)
+  if (!supabase) return
+  const { error } = await supabase.from("user_roles").delete().eq("id", userId)
       if (error) console.error("Error deleting user:", JSON.stringify(error, null, 2))
       else fetchUsers()
     }

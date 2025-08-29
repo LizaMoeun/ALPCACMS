@@ -56,7 +56,8 @@ export default function AdminPostsList() {
 
   const handleDeletePost = async (postId: string) => {
     if (confirm("Are you sure you want to delete this post?")) {
-      const { error } = await supabase.from("posts").delete().eq("id", postId)
+  if (!supabase) return
+  const { error } = await supabase.from("posts").delete().eq("id", postId)
       if (error) {
         alert("Failed to delete post")
       } else {

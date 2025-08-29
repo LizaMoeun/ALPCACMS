@@ -25,6 +25,10 @@ export default function UsersPage() {
   // Fetch users from Supabase
   const fetchUsers = async () => {
     setLoading(true)
+    if (!supabase) {
+      setLoading(false)
+      return
+    }
     const { data, error } = await supabase.from("users").select("*")
     if (error) {
       console.error(error)
@@ -47,7 +51,8 @@ export default function UsersPage() {
   })
 
   const handleRoleChange = async (userId: string, newRole: "admin" | "user") => {
-    const { error } = await supabase.from("users").update({ role: newRole }).eq("id", userId)
+  if (!supabase) return
+  const { error } = await supabase.from("users").update({ role: newRole }).eq("id", userId)
     if (error) {
       alert("Failed to update role")
     } else {
@@ -59,7 +64,8 @@ export default function UsersPage() {
 
   const handleDeleteUser = async (userId: string) => {
     if (confirm("Are you sure you want to delete this user?")) {
-      const { error } = await supabase.from("users").delete().eq("id", userId)
+  if (!supabase) return
+  const { error } = await supabase.from("users").delete().eq("id", userId)
       if (error) {
         alert("Failed to delete user")
       } else {

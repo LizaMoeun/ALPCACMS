@@ -125,6 +125,7 @@ useEffect(() => {
   const fetchData = async () => {
     setLoading(true)
     try {
+  if (!supabase) return
       // 1. Get posts
       let query = supabase
         .from("posts")

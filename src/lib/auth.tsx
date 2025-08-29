@@ -28,6 +28,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Check current session on load
   useEffect(() => {
     const getSession = async () => {
+      if (!supabase) {
+        setIsLoading(false)
+        return
+      }
+
       const { data } = await supabase.auth.getSession()
       if (data.session) {
         const u = data.session.user
@@ -38,6 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     getSession()
 
     // listen for login/logout
+    if (!supabase) return
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser({ id: session.user.id, email: session.user.email!, name: session.user.user_metadata?.name || "" })
@@ -53,7 +59,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // login
   const login = async (email: string, password: string): Promise<boolean> => {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+  if (!supabase) return false
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       console.error("Login failed:", error.message)
       return false
@@ -66,7 +73,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // register
   const register = async (email: string, name: string, password: string): Promise<boolean> => {
-    const { data, error } = await supabase.auth.signUp({
+  if (!supabase) return false
+  const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { name } },
@@ -83,7 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // logout
   const logout = async () => {
-    await supabase.auth.signOut()
+  if (!supabase) return
+  await supabase.auth.signOut()
     setUser(null)
   }
 

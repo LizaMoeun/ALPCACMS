@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Search, Calendar, Clock, ArrowLeft, Trash2, Edit } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Search, Calendar, Clock, Trash2, Edit } from "lucide-react"
 import Image from "next/image"
 
 interface Post {
@@ -27,7 +26,6 @@ export default function AdminPostsList() {
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
   const [loading, setLoading] = useState(true)
-  const router = useRouter()
 
   useEffect(() => {
     async function fetchPosts() {

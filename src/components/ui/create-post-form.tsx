@@ -13,6 +13,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { CalendarIcon, Upload, X, Minimize2, Maximize2 } from "lucide-react"
+import Image from "next/image"
 import { format } from "date-fns"
 
 export function CreatePostForm() {
@@ -134,9 +135,11 @@ export function CreatePostForm() {
                 <div className="mt-2">
                   {image ? (
                     <div className="relative inline-block">
-                      <img
+                      <Image
                         src={image || "/placeholder.svg?height=96&width=96"}
                         alt="Upload preview"
+                        width={96}
+                        height={96}
                         className="w-24 h-24 object-cover rounded"
                       />
                       <Button
@@ -184,9 +187,11 @@ export function CreatePostForm() {
                 )}
                 {content && <p className="text-sm text-muted-foreground">{content}</p>}
                 {image && (
-                  <img
+                  <Image
                     src={image || "/placeholder.svg?height=200&width=300"}
                     alt="Post preview"
+                    width={300}
+                    height={200}
                     className="w-full max-w-xs rounded"
                   />
                 )}

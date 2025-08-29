@@ -7,8 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Trash2, Search, Users, Shield, UserIcon } from "lucide-react"
-import { useRouter } from "next/navigation"
+import { Trash2, Search, UserIcon } from "lucide-react"
 
 interface User {
   id: string
@@ -18,7 +17,6 @@ interface User {
 }
 
 export default function UsersPage() {
-  const router = useRouter()
   const [users, setUsers] = useState<User[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "user">("all")

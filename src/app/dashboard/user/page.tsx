@@ -160,7 +160,11 @@ export default function UsersPage() {
                     className="pl-10"
                   />
                 </div>
-                    <SelectTrigger className="w-48">
+                <Select
+                  value={draftFilter}
+                  onValueChange={(val) => setDraftFilter(val as "all" | "withDrafts" | "noDrafts")}
+                >
+                  <SelectTrigger className="w-48">
                     <SelectValue placeholder="Filter drafts" />
                   </SelectTrigger>
                   <SelectContent>
@@ -168,6 +172,7 @@ export default function UsersPage() {
                     <SelectItem value="withDrafts">With Drafts</SelectItem>
                     <SelectItem value="noDrafts">No Drafts</SelectItem>
                   </SelectContent>
+                </Select>
                   </CardContent>
                   </Card>
             

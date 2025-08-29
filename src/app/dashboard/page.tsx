@@ -5,8 +5,9 @@ import { supabase } from "@/lib/supabaseClient"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Search, Filter, Home, Plus, FileText, Calendar, MoreHorizontal, User, Shield, LogOut } from "lucide-react"
+import { Search, Filter, Home, Plus, FileText, Calendar, MoreHorizontal, User, LogOut } from "lucide-react"
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer } from "recharts"
+import Image from "next/image"
 import { CreatePostForm } from "@/components/ui/create-post-form"
 import  AdminPostsList from "@/components/admin-posts-list"
 import { useAuth } from "@/lib/auth"
@@ -27,9 +28,8 @@ type Post = {
 
 export default function Dashboard() {
   const [activeNav, setActiveNav] = useState("dashboard")
-  const { user, logout, isAdmin } = useAuth()
+  const { user, logout } = useAuth()
   const router = useRouter()
-  const [chartData, setChartData] = useState<[]>([])
   const handleLogout = () => {
     logout()
     router.push("/")
@@ -345,9 +345,11 @@ useEffect(() => {
             <div className="space-y-4">
               {drafts.map((draft) => (
                 <div key={draft.id} className="flex gap-3 p-3 border rounded-lg">
-                  <img
+                  <Image
                     src={draft.image || "/placeholder.svg"}
                     alt="Draft preview"
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded object-cover"
                   />
                   <div className="flex-1">

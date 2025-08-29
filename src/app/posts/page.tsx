@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Search, Calendar, Clock, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import Image from "next/image"
 
 export default function PublicPostsPage() {
   const supabase = createClientComponentClient()
@@ -39,7 +40,7 @@ export default function PublicPostsPage() {
       setPosts(data)
     }
     fetchPosts()
-  }, [])
+  }, [supabase])
 
   const filteredPosts = posts.filter((post) => {
     const matchesSearch =
@@ -142,9 +143,11 @@ export default function PublicPostsPage() {
               </CardHeader>
               <CardContent>
                 {post.image && (
-                  <img
+                  <Image
                     src={post.image || "/placeholder.svg"}
                     alt={post.title}
+                    width={800}
+                    height={384}
                     className="w-full h-48 object-cover rounded mb-4"
                   />
                 )}
